@@ -26,7 +26,8 @@ class Template:
         opts.extend(audio_opt.split(" "))
         sub_opt = self.cli.get("subtitles", "")
         opts.extend(sub_opt.split(" "))
-
+        other_opt = self.cli.get("other", "")
+        opts.extend(other_opt.split(" "))
         return opts
 
     def audio_langs(self) -> list:
