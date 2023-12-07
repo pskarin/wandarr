@@ -89,7 +89,7 @@ class StreamingManagedHost(ManagedHost):
                     # trick to make scp work on the Windows side
                     target_dir = '/' + remote_working_dir
 
-                scp = ['scp', in_path, self.props.user + '@' + self.props.ip + ':' + target_dir]
+                scp = ['rsync', in_path, self.props.user + '@' + self.props.ip + ':' + target_dir]
                 self.log(' '.join(scp))
 
                 code, output = run(scp)
