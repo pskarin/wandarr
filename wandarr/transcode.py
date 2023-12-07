@@ -129,6 +129,11 @@ def start():
     if args.console:
         configfile.rich = False
 
+    if args.template == '?':
+        print("The following templates are available: ", 
+              ", ".join(list(configfile.templates.keys())))
+        sys.exit(0)
+
     files = finalize_files(files, args.from_file)
     setup_host_override(args.host_override, args.local_only, configfile)
 
@@ -137,7 +142,7 @@ def start():
         sys.exit(0)
 
     if not args.template:
-        print("A template is required")
+        print("A template is required, use -t ? to show available templates")
         sys.exit(1)
 
     completed: List = manage_cluster(files, configfile, args.template)
