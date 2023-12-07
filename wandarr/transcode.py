@@ -53,6 +53,7 @@ def init_argparse() -> argparse.ArgumentParser:
     parser.add_argument('--from-file', dest='from_file',
                         action='store', help='Filename that contains list of full paths of files to transcode')
     parser.add_argument("--console", dest="console", action="store_true", required=False, help=argparse.SUPPRESS)
+    parser.add_argument("--ping", dest="ping", action="store_true", help="Run ping before SSH on host check")
     return parser
 
 
@@ -113,6 +114,7 @@ def start():
     wandarr.KEEP_SOURCE = args.keep_source
     wandarr.DRY_RUN = args.dry_run
     wandarr.SHOW_INFO = args.show_info
+    wandarr.DO_PING = args.ping
     if wandarr.SHOW_INFO:
         wandarr.DRY_RUN = True
         args.agent_mode = False

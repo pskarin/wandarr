@@ -206,7 +206,9 @@ class ManagedHost(Thread):
             return False
 
     def host_ok(self):
-        return self.ping_test_ok() and self.ssh_test_ok()
+        if wandarr.DO_PING and not self.ping_test_ok():
+            return False
+        return self.ssh_test_ok()
 
     def run_process(self, *args):
         p = subprocess.run(*args, check=False)

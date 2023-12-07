@@ -13,7 +13,7 @@ VERBOSE = False
 KEEP_SOURCE = False
 DRY_RUN = False
 SHOW_INFO = False
-
+DO_PING = False
 console = None
 
 status_queue = Queue()
