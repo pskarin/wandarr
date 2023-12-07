@@ -10,10 +10,12 @@ from queue import Queue
 
 SSH: str = "/usr/bin/ssh"
 VERBOSE = False
-KEEP_SOURCE = False
 DRY_RUN = False
 SHOW_INFO = False
 DO_PING = False
+SKIP_EXISTING = True
+OUTPUT_FOLDER = None
+OVERWRITE_SOURCE = False
 console = None
 
 status_queue = Queue()

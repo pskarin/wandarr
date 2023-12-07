@@ -53,7 +53,35 @@ class StreamingManagedHost(ManagedHost):
                 #
                 remote_working_dir = self.props.working_dir
                 remote_in_path = os.path.join(remote_working_dir, os.path.basename(in_path))
-                remote_out_path = os.path.join(remote_working_dir, os.path.basename(in_path) + '.tmp')
+                namenoext = '.'.join(os.path.basename(in_path).split('.')[0:-1])
+                remote_out_path = os.path.join(remote_working_dir, namenoext + '.tmp' + job.template.extension())
+                infolder = os.path.dirname(in_path)
+                outfolder = wandarr.OUTPUT_FOLDER
+                # Determine output file
+                if not outfolder:
+                    outfolder = infolder
+                else:
+                    if not os.path.exists(outfolder):
+                        os.makedirs(outfolder)
+
+                if wandarr.OVERWRITE_SOURCE:
+                    out_path = os.path.join(outfolder, namenoext+job.template.extension())
+                    if os.path.exists(out_path) and wandarr.SKIP_EXISTING:
+                        self.log(f'skipping existing file {out_path}')
+                        continue
+                else:
+                    out_path = os.path.join(outfolder, namenoext+f'.wandarr-{job.template.name()}{job.template.extension()}')
+                    if os.path.exists(out_path) and wandarr.SKIP_EXISTING:
+                        self.log(f'skipping existing file {out_path}')
+                        continue
+                    cnt = 1
+                    while os.path.exists(out_path):
+                        out_path = os.path.join(outfolder, namenoext+f'.wandarr-{job.template.name()}-{cnt}{job.template.extension()}')
+                        cnt += 1
+
+                if out_path == in_path and not wandarr.OVERWRITE_SOURCE:
+                    self.log(f'refusing to overwrite original file')
+                    continue
 
                 #
                 # build remote commandline
@@ -140,12 +168,10 @@ class StreamingManagedHost(ManagedHost):
                         continue
                     self.complete(in_path, (job_stop - job_start).seconds)
 
-                    if not wandarr.KEEP_SOURCE:
-                        os.rename(retrieved_copy_name, retrieved_copy_name[0:-4])
-                        retrieved_copy_name = retrieved_copy_name[0:-4]
-                        if wandarr.VERBOSE:
-                            self.log(f'moving media to {in_path}')
-                        shutil.move(retrieved_copy_name, in_path)
+                    if wandarr.VERBOSE:
+                        self.log(f'moving media to {in_path}')
+                    shutil.move(retrieved_copy_name, out_path)
+
                 elif code is not None:
                     self.log(f'error during remote transcode of {in_path}', style="magenta")
                     self.log(f' Did not complete normally: {self.ffmpeg.last_command}')
@@ -159,7 +185,7 @@ class StreamingManagedHost(ManagedHost):
                         remote_in_path = remote_in_path.replace(r"\\", "\\")
                     self.run_process([*ssh_cmd, f'del "{remote_out_path}"'])
                 else:
-                    self.run_process([*ssh_cmd, f'"rm {remote_out_path}"'])
+                    self.run_process([*ssh_cmd, f'rm {remote_out_path}'])
 
             except Exception:
                 print(traceback.format_exc())

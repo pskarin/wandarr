@@ -35,10 +35,10 @@ def init_argparse() -> argparse.ArgumentParser:
                         action='store_true', help='verbose mode')
     parser.add_argument("-i", help="show technical info on files and stop",
                         action="store_true", dest="show_info")
-    parser.add_argument('-k', dest='keep_source',
-                        action='store_true', help='keep source (do not replace)')
     parser.add_argument("-l", dest="local_only",
                         action="store_true", help="Transcode on local machine only if multiples defined")
+    parser.add_argument("-d", dest="output_path",
+                        help="output to specified folder")
     parser.add_argument('--dry-run', dest='dry_run',
                         action='store_true', help="Test run, show steps but don't change anything")
     parser.add_argument('-y', dest='configfile_name', default=DEFAULT_CONFIG,
@@ -54,6 +54,10 @@ def init_argparse() -> argparse.ArgumentParser:
                         action='store', help='Filename that contains list of full paths of files to transcode. Use - for standard input.')
     parser.add_argument("--console", dest="console", action="store_true", required=False, help=argparse.SUPPRESS)
     parser.add_argument("--ping", dest="ping", action="store_true", help="Run ping before SSH on host check")
+    parser.add_argument('--overwrite_original', dest='overwrite_source',
+                        action='store_true', help='overwrite source file')
+    parser.add_argument('--no_skip_existing', dest='no_skip_existing',
+                        action='store_true', help='do not skip existing files, instead number output')
     return parser
 
 
@@ -111,10 +115,16 @@ def start():
 
     files: List = args.files
     wandarr.VERBOSE = args.verbose
-    wandarr.KEEP_SOURCE = args.keep_source
+    wandarr.SKIP_EXISTING = not args.no_skip_existing
     wandarr.DRY_RUN = args.dry_run
     wandarr.SHOW_INFO = args.show_info
     wandarr.DO_PING = args.ping
+    wandarr.OUTPUT_FOLDER = args.output_path
+    wandarr.OVERWRITE_SOURCE = args.overwrite_source
+
+    if wandarr.OVERWRITE_SOURCE:
+        wandarr.SKIP_EXISTING = False
+
     if wandarr.SHOW_INFO:
         wandarr.DRY_RUN = True
         args.agent_mode = False
