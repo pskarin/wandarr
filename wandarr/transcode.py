@@ -51,14 +51,14 @@ def init_argparse() -> argparse.ArgumentParser:
     parser.add_argument('--hosts', dest='host_override',
                         action='store', help="Only run transcode on given host(s), comma-separated")
     parser.add_argument('--from-file', dest='from_file',
-                        action='store', help='Filename that contains list of full paths of files to transcode')
+                        action='store', help='Filename that contains list of full paths of files to transcode. Use - for standard input.')
     parser.add_argument("--console", dest="console", action="store_true", required=False, help=argparse.SUPPRESS)
     parser.add_argument("--ping", dest="ping", action="store_true", help="Run ping before SSH on host check")
     return parser
 
 
 def finalize_files(files: list, from_file: str):
-    if len(files) == 0:
+    if len(files) == 0 and not from_file:
         print('No files - nothing to do')
         sys.exit(0)
 

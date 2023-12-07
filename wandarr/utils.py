@@ -4,6 +4,7 @@ import os
 import platform
 import subprocess
 from typing import Dict
+import sys
 
 import wandarr
 from wandarr.media import MediaInfo
@@ -26,12 +27,17 @@ def is_exceeded_threshold(pct_threshold: int, orig_size: int, new_size: int) -> 
 
 
 def files_from_file(queue_path) -> list:
-    if not os.path.exists(queue_path):
-        print('Nothing to do.')
-        return []
-    with open(queue_path, 'r', encoding="utf8") as qf:
-        _files = [fn.rstrip() for fn in qf.readlines()]
-        return _files
+    if queue_path == '-':
+        with sys.stdin as qf:
+            _files = [fn.rstrip() for fn in qf.readlines()]
+            return _files
+    else:   
+        if not os.path.exists(queue_path):
+            print('File of files not found - nothing to do')
+            return []
+        with open(queue_path, 'r', encoding="utf8") as qf:
+            _files = [fn.rstrip() for fn in qf.readlines()]
+            return _files
 
 
 def get_local_os_type():
