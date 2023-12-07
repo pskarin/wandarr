@@ -5,6 +5,7 @@ import sys
 import signal
 from typing import List
 import argparse
+import subprocess
 
 import wandarr
 
@@ -58,6 +59,11 @@ def init_argparse() -> argparse.ArgumentParser:
                         action='store_true', help='overwrite source file')
     parser.add_argument('--no_skip_existing', dest='no_skip_existing',
                         action='store_true', help='do not skip existing files, instead number output')
+    parser.add_argument('--metadata', dest='metadata', action='store_true',
+                        help='Copy metadata (default)')
+    parser.add_argument('--no-metadata', dest='metadata', action='store_false', 
+                        help='Do not copy metadata')
+    parser.set_defaults(metadata=True)
     return parser
 
 
@@ -119,6 +125,7 @@ def start():
     wandarr.DRY_RUN = args.dry_run
     wandarr.SHOW_INFO = args.show_info
     wandarr.DO_PING = args.ping
+    wandarr.COPY_METADATA = args.metadata
     wandarr.OUTPUT_FOLDER = args.output_path
     wandarr.OVERWRITE_SOURCE = args.overwrite_source
 
@@ -129,6 +136,13 @@ def start():
         wandarr.DRY_RUN = True
         args.agent_mode = False
 
+    if wandarr.COPY_METADATA:
+        try:
+            subprocess.Popen('exiftool', shell=False)
+        except:
+            print("exiftool not found, use switch --no-metadata")
+            sys.exit(1)
+
     if args.agent_mode:
         agent = Agent()
         agent.serve()
@@ -138,6 +152,8 @@ def start():
 
     if args.console:
         configfile.rich = False
+
+    if not wandarr.COPY_METADATA and configfile.settings['metadata']: wandarr.COPY_METADATA = True
 
     if args.template == '?':
         print("The following templates are available: ", 

@@ -168,6 +168,17 @@ class StreamingManagedHost(ManagedHost):
                         continue
                     self.complete(in_path, (job_stop - job_start).seconds)
 
+                    if wandarr.COPY_METADATA:
+                        exiftool = ['exiftool', '-q', '-overwrite_original', '-tagsfromfile',
+                               in_path, retrieved_copy_name]
+                        self.log(' '.join(exiftool))
+
+                        code, output = run(exiftool)
+                        if code != 0:
+                            self.log('Unknown error copying source to remote - media skipped', style="magenta")
+                            if wandarr.VERBOSE:
+                                self.log(output)
+                            continue
                     if wandarr.VERBOSE:
                         self.log(f'moving media to {in_path}')
                     shutil.move(retrieved_copy_name, out_path)
