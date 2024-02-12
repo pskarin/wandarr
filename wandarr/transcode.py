@@ -138,7 +138,7 @@ def start():
 
     if wandarr.COPY_METADATA:
         try:
-            subprocess.Popen('exiftool', shell=False)
+            subprocess.run('exiftool', capture_output=True, shell=False)
         except:
             print("exiftool not found, use switch --no-metadata")
             sys.exit(1)
